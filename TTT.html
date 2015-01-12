@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+	<meta charset="UTF-8">
+	<title>Tic Tac Toe Game!</title>
+
+	<style>
+		canvas {
+			border: 1px solid black;
+			position: absolute;
+			margin: auto;
+			padding: 0px;
+			top: 0px;
+			bottom: 0px;
+			left: 0px;
+			right: 0px;
+		}
+	</style>
+
+	<script>
+
+	var canvas, context, data;
+	var player;
+	
+
+	window.onload = function main(){
+
+		canvas=document.createElement("canvas");
+		canvas.width = 380;
+		canvas.height = 380;
+		context = canvas.getContext("2d");
+		document.body.appendChild(canvas);
+
+		canvas.addEventListener("mousedown",mouseDown);
+
+		init();
+		tick();
+	}
+
+	function init(){
+
+		if(data == null){
+			data = [];
+			for(var i = 0; i < 3; i++){
+				for(var j = 0; j < 3; j++){
+				 	data.push(new Cell(j*120 + 20, i*120 + 20));
+				}
+			}
+		}
+		player = Cell.CIRCLE;
+	}
+
+	function tick(){
+		window.requestAnimationFrame(tick);
+		update();
+		render();
+	}
+
+	function update(){
+		for(var i = data.length; i--;){
+			data[i].update();
+		}
+	}
+	function render(){
+		context.clearRect(0,0,canvas.width, canvas.height);
+		for(var i = data.length; i--;){
+			data[i].draw(context);
+		}
+	}
+
+	function mouseDown(act){
+		var ele = act.target;
+
+		var row = act.clientX - ele.offsetLeft;
+		var col = act.clientY - ele.offsetTop;
+
+		if(row % 120 >= 20 && col % 120 >= 20){
+			var loc = Math.floor(row/120);
+			loc += Math.floor(col/120)*3;
+			console.log(loc)
+
+			if(data[loc].isOccupied()){return;}
+
+			data[loc].flip(player);
+
+			if(player === Cell.CIRCLE){
+				player = Cell.CROSS;
+			} else {
+				player = Cell.CIRCLE;
+			}
+		}
+	}
+
+	function Cell(row, col){
+		var row = row;
+		var col = col;
+
+		var cell = Cell.BLANK;
+		var animation = 0;
+
+		if(cell == null){
+			var tempBoard = document.createElement("canvas");
+			tempBoard.width = 100;
+			tempBoard.height = 100;
+			_context = tempBoard.getContext("2d");
+
+			
+			_context.fillStyle = "orange";
+			_context.lineWidth = 5;
+			_context.strokeStyle = "white";
+
+			//BLANK CELLS
+			_context.fillRect(0,0,100,100);
+			Cell.BLANK = new Image();//Object here
+			Cell.BLANK.src = tempBoard.toDataURL();
+
+			//CIRCLE CELLS
+			_context.fillRect(0,0,100,100);
+			_context.beginPath();
+			_context.arc(50,50,30,0,2*Math.PI);
+			_context.stroke();
+
+			Cell.CIRCLE = new Image();
+			Cell.CIRCLE.src = tempBoard.toDataURL();
+
+			//CROSS CELLS
+			_context.fillRect(0,0,100,100);
+			_context.beginPath();
+			_context.moveTo(80, 20);
+			_context.lineTo(20, 80);
+			_context.moveTo(80, 80);
+			_context.lineTo(20, 20);
+			_context.stroke();
+
+			Cell.CROSS = new Image();
+			Cell.CROSS.src = tempBoard.toDataURL();
+
+			cell = Cell.BLANK;
+
+		}
+
+		this.isOccupied = function(){
+			return cell !== Cell.BLANK;
+		}
+
+		this.flip = function(next){
+			cell = next;
+			animation = 1;
+		}
+
+		this.update = function(){
+			if(animation > 0){
+				animation = animation - 0.02;
+			}
+		}
+
+		this.draw = function(context){
+			if(animation<=0){
+				context.drawImage(cell, row, col);
+				return;
+			}
+			
+			var counter = 2;
+			var temp = animation > 0.5 ? Cell.BLANK : cell;
+			var particle = -Math.abs(2*animation-1)+1;
+
+			for(var i = 0; i < 100; i+=counter){
+				
+				//Simiarly, we can modify our frontNum var (Vertical counter)
+				var frontNum = 50 - (animation > 0.5 ? 100 - i : i);
+//Note that row is being subtracted WRT our counter variable
+//col variable is optional, will change this later
+
+				context.drawImage(temp, i, 0, counter, 100, 
+					row + i*(1 - particle) + 50 * particle,
+					col- frontNum * particle * 0.2, 
+					counter, 100+frontNum*particle*0.4);
+			}//50 is the half of our cell**
+			
+		}
+
+	}
+
+	</script>
+
+</head>
+
+<body>
+
+</body>
+
+</html>
