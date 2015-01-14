@@ -6,9 +6,9 @@
 	<meta charset="UTF-8">
 	<title>Tic Tac Toe Game!</title>
 
-	<style>
+	<style type="text/css">
 		canvas {
-			border: 1px solid black;
+			border: 5px solid black;
 			position: absolute;
 			margin: auto;
 			padding: 0px;
@@ -17,57 +17,73 @@
 			left: 0px;
 			right: 0px;
 		}
+		div > h2 {
+			text-align: center;
+		}
 	</style>
 
-	<script>
+	<script type="text/javascript">
 
-	var canvas, context, data;
+	var board, context, data;
 	var player;
-	
+	var boolDisplay
+	var cellFilled = 0;
 
 	window.onload = function main(){
 
-		canvas=document.createElement("canvas");
-		canvas.width = 380;
-		canvas.height = 380;
-		context = canvas.getContext("2d");
-		document.body.appendChild(canvas);
+		board=document.createElement('canvas');
+		board.width = 380;
+		board.height = 380;
+		context = board.getContext("2d");
+		document.body.appendChild(board);
 
-		canvas.addEventListener("mousedown",mouseDown);
+		board.addEventListener("mousedown",mouseDown);
+		//confirm("NOW?");
 
 		init();
 		tick();
+		//done();
+		//console.log("End of main");
 	}
 
 	function init(){
 
 		if(data == null){
 			data = [];
+			boolDisplay = [];
 			for(var i = 0; i < 3; i++){
 				for(var j = 0; j < 3; j++){
 				 	data.push(new Cell(j*120 + 20, i*120 + 20));
+				 	boolDisplay.push("B");
 				}
 			}
 		}
 		player = Cell.CIRCLE;
+		//console.log("End of Init");
 	}
 
 	function tick(){
 		window.requestAnimationFrame(tick);
 		update();
 		render();
+		//done();
+		//console.log("End of Tick");
 	}
 
 	function update(){
 		for(var i = data.length; i--;){
 			data[i].update();
 		}
+		//console.log("End of Update");
 	}
 	function render(){
-		context.clearRect(0,0,canvas.width, canvas.height);
+		context.clearRect(0,0,board.width, board.height);
 		for(var i = data.length; i--;){
-			data[i].draw(context);
+			data[i].textDisplay(context);
 		}
+
+		//console.log("1");
+		//console.log("End of Render");
 	}
 
 	function mouseDown(act){
@@ -79,17 +95,76 @@
 		if(row % 120 >= 20 && col % 120 >= 20){
 			var loc = Math.floor(row/120);
 			loc += Math.floor(col/120)*3;
-			console.log(loc)
+			////console.log(loc)
 
 			if(data[loc].isOccupied()){return;}
 
 			data[loc].flip(player);
+			//done();
 
 			if(player === Cell.CIRCLE){
+				boolDisplay[loc] = "O";
 				player = Cell.CROSS;
 			} else {
+				boolDisplay[loc] = "X";
 				player = Cell.CIRCLE;
 			}
+			//console.log(boolDisplay[loc]);
+		}
+		//console.log("End of Down");
+	}
+
+	function done(){
+		var doneGame = false;
+		for(var i = 0; i < 3; i++){
+			if(rowWin(i) || colWin(i) || diaWin()){
+				var again = confirm("WON! WOULD YOU LIKE TO PLAY AGAIN?");
+				if(again){
+					//reset();
+				} else {
+					board.removeEventListener("mousedown",mouseDown);
+				}
+				break;
+			}
+		}
+		//console.log("Gone Through here!");
+	}
+
+	function rowWin(curCell){
+		if (boolDisplay[curCell*3] === boolDisplay[curCell*3+1] &&
+			boolDisplay[curCell*3] === boolDisplay[curCell*3+2] && 
+			boolDisplay[curCell*3] !== "B"){
+			return true;
+		}
+		return false;
+	}
+
+	function colWin(curCell){
+		if (boolDisplay[curCell] === boolDisplay[curCell+3] &&
+			boolDisplay[curCell] === boolDisplay[curCell+6] &&
+			boolDisplay[curCell] !== "B"){
+			return true;
+		}
+		return false;
+	}
+
+	function diaWin(){
+		//console.log(boolDisplay[0], boolDisplay[4], boolDisplay[8]);
+		if ((boolDisplay[0] === boolDisplay[4] &&
+			boolDisplay[0] === boolDisplay[8] &&
+			boolDisplay[0] !== "B") || 
+			(boolDisplay[6] === boolDisplay[4] &&
+			boolDisplay[6] === boolDisplay[2] &&
+			boolDisplay[6] !== "B")){
+			return true;
+		}
+		return false;
+	}
+
+	function reset(){
+		for(var i = 0; i < 1; i++){
+			data[i].flip(Cell.BLANK);
+			console.log("Here!");
 		}
 	}
 
@@ -104,15 +179,16 @@
 			var tempBoard = document.createElement("canvas");
 			tempBoard.width = 100;
 			tempBoard.height = 100;
-			_context = tempBoard.getContext("2d");
+			var _context = tempBoard.getContext("2d");
 
 			
-			_context.fillStyle = "orange";
+			_context.fillStyle = "black";
 			_context.lineWidth = 5;
 			_context.strokeStyle = "white";
 
 			//BLANK CELLS
 			_context.fillRect(0,0,100,100);
+
 			Cell.BLANK = new Image();//Object here
 			Cell.BLANK.src = tempBoard.toDataURL();
 
@@ -138,7 +214,6 @@
 			Cell.CROSS.src = tempBoard.toDataURL();
 
 			cell = Cell.BLANK;
-
 		}
 
 		this.isOccupied = function(){
@@ -156,7 +231,7 @@
 			}
 		}
 
-		this.draw = function(context){
+		this.textDisplay = function(context){
 			if(animation<=0){
 				context.drawImage(cell, row, col);
 				return;
@@ -178,9 +253,9 @@
 					col- frontNum * particle * 0.2, 
 					counter, 100+frontNum*particle*0.4);
 			}//50 is the half of our cell**
-			
+			if(animation === 0.019999999999999383){done();}
 		}
-
+		//console.log("End of Cell");
 	}
 
 	</script>
@@ -188,6 +263,7 @@
 </head>
 
 <body>
+	<div class="Title"><h2>Tic-Tac-Toe</h4></div>
 
 </body>
 
