@@ -17,7 +17,23 @@
 			left: 0px;
 			right: 0px;
 		}
-		div > h2 {
+		.Title {
+			text-align: center;
+		}
+		.Info{
+			style: relative;
+			clear: both;
+			position: fixed;
+			bottom: 0;
+			width: 100%;
+			text-align: center;
+		}
+		.Restart {
+			style: relative;
+			clear: both;
+			position: fixed;
+			width: 100%;
+			display: center;
 			text-align: center;
 		}
 	</style>
@@ -120,6 +136,7 @@
 			if(rowWin(i) || colWin(i) || diaWin()){
 				var again = confirm("WON! WOULD YOU LIKE TO PLAY AGAIN?");
 				if(again){
+					window.location.reload();
 					//reset();
 				} else {
 					board.removeEventListener("mousedown",mouseDown);
@@ -264,6 +281,8 @@
 
 <body>
 	<div class="Title"><h2>Tic-Tac-Toe</h4></div>
+	<div class="Restart"><input type="button" value="Restart Game" onClick="window.location.reload()"></div>
+	<div class="Info"><h5>Made by: Mark Luo(BagelSeed)</h5></div>
 
 </body>
 
